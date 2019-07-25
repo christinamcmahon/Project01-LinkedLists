@@ -176,6 +176,7 @@ public class ArrayList<E> implements List<E> {
 	 * @return element removed from the list
 	 *************************************************************/
 	public E remove(int index) {
+		checkIndex(index);
 		E item = data[index];
 		for(int i = index; i < size - 1; i++) {
 			data[i] = data[i + 1];
