@@ -24,7 +24,11 @@ public class LinkedList<E> implements List<E> {
 	 * copy constructor: LinkedList(List<E>)
 	 *************************************************************/
 	public LinkedList(List<E> other) {
-		other = new LinkedList<E>();
+		start = null;
+		size = 0;
+		for(int i = 0; i < other.size(); i++) {
+			add(other.get(i));
+		}
 	}
 	
 	/*************************************************************
@@ -209,12 +213,14 @@ public class LinkedList<E> implements List<E> {
 		}
 		if(start.data.equals(element)) {
 			start = current.next;
+			start.prev = nodeAt(size - 1);
 			size--;
 			return true;
 		}
 		while (current.next != null) {
 			if(current.next.data.equals(element)) {
 				current.next = current.next.next;
+				current.next.prev = current;
 				size--;
 				return true;
 			}
