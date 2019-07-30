@@ -39,15 +39,14 @@ public class LinkedList<E> implements List<E> {
 	@Override
 	public boolean add(E element) {
 		int oldSize = size;
-		if (start == null) {
+		if (isEmpty()) {
 			start = new Node(start, start, element);
+			start.next = start.prev = start;
 		} else {
-			Node current = start;
-			while(current.next != null) {
-				current = current.next;
-			}
-			current.next = new Node(current, current.next,element);
-			start.prev = current.next.next;
+			Node newNode = new Node(start.prev, start, element);
+			Node current = start.prev;
+			current.next = newNode;
+			start.prev = newNode;
 		}
 		size++;
 		return size == oldSize + 1; 
@@ -62,10 +61,15 @@ public class LinkedList<E> implements List<E> {
 	@Override
 	public void add(int index, E element) {
 		checkIndex(index);
-		if (start == null) {
+		if (isEmpty()) {
 			start = new Node(start, start, element);
+			start.next = start.prev = start;
 		} else if (index == 0) {
 			start = new Node(start.prev, start, element);
+			Node current = start.next;
+			current.prev = start;
+			current = start.prev;
+			current.next = start;
 		} else {
 			Node current = start;
 			for(int i = 0; i < index - 1; i++) {
@@ -130,13 +134,14 @@ public class LinkedList<E> implements List<E> {
 	public int indexOf(E element) {
 		int index = 0;
 		Node current = start;
-		while (current != null) {
+		do {
 			if(current.data.equals(element)) {
 				return index;
 			}
 			index++;
 			current = current.next;
 		}
+		while (current != start);
 		return -1;
 	}
 
@@ -158,7 +163,7 @@ public class LinkedList<E> implements List<E> {
 //	}
 	
 	/*************************************************************
-	 * returns a reference to the node at the fiven position in 
+	 * returns a reference to the node at the given position in 
 	 * the list
 	 * @return node at the given index
 	 *************************************************************/
@@ -183,11 +188,14 @@ public class LinkedList<E> implements List<E> {
 		Node current = start;
 		E element = nodeAt(index).data;
 		if(index == 0) {
-			start = current.next;
+			start = start.next;
+			start.prev = nodeAt(size - 2);
+			Node last = start.prev;
+			last.next = start;
 		} else {
-			current = nodeAt(index -1);
+			current = nodeAt(index - 1);
 			current.next = current.next.next;
-			current.prev = current;
+			current.next.prev = current;
 		}
 		size--;
 		start.prev = nodeAt(size - 1);
@@ -212,12 +220,14 @@ public class LinkedList<E> implements List<E> {
 			}
 		}
 		if(start.data.equals(element)) {
-			start = current.next;
-			start.prev = nodeAt(size - 1);
+			start = start.next;
+			start.prev = nodeAt(size - 2);
+			Node last = start.prev;
+			last.next = start;
 			size--;
 			return true;
 		}
-		while (current.next != null) {
+		do {
 			if(current.next.data.equals(element)) {
 				current.next = current.next.next;
 				current.next.prev = current;
@@ -226,6 +236,7 @@ public class LinkedList<E> implements List<E> {
 			}
 			current = current.next;
 		}
+		while (current != start);
 		return false;
 	}
 
@@ -262,12 +273,12 @@ public class LinkedList<E> implements List<E> {
 	 *************************************************************/
 	@Override
 	public String toString() {
-		if(start == null) {
+		if(isEmpty()) {
 			return "[]";
 		} else {
 			String result = "[ " + start.data;
 			Node current = start.next;
-			while(current != null) {
+			while(current != start) {
 				result += ", " + current.data;
 				current = current.next;
 			}
@@ -338,6 +349,4 @@ public class LinkedList<E> implements List<E> {
 			
 		}
 	}
-
-	
 }
