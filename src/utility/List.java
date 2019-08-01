@@ -54,7 +54,7 @@ public interface List<E> {
 	 * returns an object used to traverse the elements in the list
 	 * @return object used to traverse the elements in the list
 	 *************************************************************/
-//	public Iterator<E> iterator();
+	public Iterator<E> iterator();
 	
 	/*************************************************************
 	 * removes the element at the given index in the list and

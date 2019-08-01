@@ -1,5 +1,7 @@
 package lists;
 
+import java.util.NoSuchElementException;
+
 import utility.Iterator;
 import utility.List;
 
@@ -158,9 +160,9 @@ public class LinkedList<E> implements List<E> {
 	 * returns an object used to traverse the elements in the list
 	 * @return object used to traverse the elements in the list
 	 *************************************************************/
-//	public Iterator<E> iterator() {
-//		
-//	}
+	public Iterator<E> iterator() {
+		return new LinkedIterator();
+	}
 	
 	/*************************************************************
 	 * returns a reference to the node at the given position in 
@@ -326,18 +328,23 @@ public class LinkedList<E> implements List<E> {
 		 *************************************************************/
 		@Override
 		public boolean hasNext() {
-			// TODO Auto-generated method stub
-			return false;
+			return current.next != start;
 		}
 
 		/*************************************************************
 		 * returns the next item in the iteration
 		 * @return next item in the iteration
+		 * @throws NoSuchElementException if there is no next item
 		 *************************************************************/
 		@Override
 		public E next() {
-			// TODO Auto-generated method stub
-			return null;
+			if(!hasNext()) {
+				throw new NoSuchElementException("There is no next item");
+			}
+			E result = current.data;
+			current = current.next;
+			ableToRemove = true;
+			return result;
 		}
 
 		/*************************************************************
@@ -345,8 +352,14 @@ public class LinkedList<E> implements List<E> {
 		 *************************************************************/
 		@Override
 		public void remove() {
-			// TODO Auto-generated method stub
-			
+			if(!ableToRemove) {
+				throw new IllegalArgumentException("Unable to remove");
+			}
+			Node prev = current.prev.prev;
+			prev.next = current;
+			current.prev = prev;
+			size--;
+			ableToRemove = false;
 		}
 	}
 }
