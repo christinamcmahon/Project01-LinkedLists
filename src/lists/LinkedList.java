@@ -4,8 +4,9 @@ import java.util.NoSuchElementException;
 
 import utility.Iterator;
 import utility.List;
+import utility.Queue;
 
-public class LinkedList<E> implements List<E> {
+public class LinkedList<E> implements List<E>, Queue<E> {
 
 	/*************************************************************
 	 * data fields: start, size
@@ -78,6 +79,7 @@ public class LinkedList<E> implements List<E> {
 				current = current.next;
 			}
 			current.next = new Node(current, current.next, element);
+			start.prev = current.next;
 		}
 		size++;
  	}
@@ -118,12 +120,34 @@ public class LinkedList<E> implements List<E> {
 	 *************************************************************/
 	@Override
 	public E get(int index) {
-		checkIndex(index);
-		Node current = start;
-		for(int i = 0; i < index; i++) {
-			current = current.next;
-		}
-		return current.data;
+		return nodeAt(index).data;
+	}
+	
+	/*************************************************************
+	 * returns the next node at the given index
+	 * @param index 	index of current node 
+	 * @return next node at index
+	 *************************************************************/
+	public Node getNextNode(int index) {
+		return nodeAt(index).next;
+	}
+	
+	/*************************************************************
+	 * returns the node at the given index
+	 * @param index 	index of node 
+	 * @return node at index
+	 *************************************************************/
+	public Node getNode(int index) {
+		return nodeAt(index);
+	}
+	
+	/*************************************************************
+	 * returns the previous node at the given index
+	 * @param index 	index of current node 
+	 * @return previous node at index
+	 *************************************************************/
+	public Node getPrevNode(int index) {
+		return nodeAt(index).prev;
 	}
 
 	/*************************************************************
@@ -134,6 +158,9 @@ public class LinkedList<E> implements List<E> {
 	 *************************************************************/
 	@Override
 	public int indexOf(E element) {
+		if(start == null) {
+			return -1;
+		}
 		int index = 0;
 		Node current = start;
 		do {
@@ -142,8 +169,7 @@ public class LinkedList<E> implements List<E> {
 			}
 			index++;
 			current = current.next;
-		}
-		while (current != start);
+		} while (current != start);
 		return -1;
 	}
 
@@ -170,6 +196,7 @@ public class LinkedList<E> implements List<E> {
 	 * @return node at the given index
 	 *************************************************************/
 	private Node nodeAt(int index) {
+		checkIndex(index);
 		Node current = start;
 		for(int i = 0; i < index; i++) {
 			current = current.next;
@@ -177,6 +204,34 @@ public class LinkedList<E> implements List<E> {
 		return current;
 	}
 
+	/*************************************************************
+	 * retrieves, but does not remove, the first element (start) 
+	 * of the list
+	 * @return first element or null if the list is empty
+	 *************************************************************/
+	public E peek() {
+		if(isEmpty()) {
+			return null;
+		}
+		return start.data;
+	}
+	
+	/*************************************************************
+	 * retrieves and removes the first element of the list
+	 * @return first element
+	 * @throws NoSuchElementException if the list is empty
+	 *************************************************************/
+	public E remove() {
+		if(isEmpty()) throw new NoSuchElementException("The list is empty");
+		E oldStart = start.data;
+		start.next.prev = start.prev;
+		start = start.next;
+		Node last = start.prev;
+		last.next = start;
+		size--;
+		return oldStart;
+	}
+	
 	/*************************************************************
 	 * removes the element at the given index in the list and
 	 * shifts subsequent elements to the left and returns the 
@@ -187,20 +242,19 @@ public class LinkedList<E> implements List<E> {
 	@Override
 	public E remove(int index) {
 		checkIndex(index);
-		Node current = start;
 		E element = nodeAt(index).data;
 		if(index == 0) {
+			start.next.prev = start.prev;
 			start = start.next;
-			start.prev = nodeAt(size - 2);
 			Node last = start.prev;
 			last.next = start;
 		} else {
-			current = nodeAt(index - 1);
+			Node current = nodeAt(index - 1);
 			current.next = current.next.next;
 			current.next.prev = current;
 		}
 		size--;
-		start.prev = nodeAt(size - 1);
+		//start.prev = nodeAt(size - 1);
 		return element;
 	}
 
@@ -222,8 +276,8 @@ public class LinkedList<E> implements List<E> {
 			}
 		}
 		if(start.data.equals(element)) {
+			start.next.prev = start.prev;
 			start = start.next;
-			start.prev = nodeAt(size - 2);
 			Node last = start.prev;
 			last.next = start;
 			size--;
@@ -311,14 +365,16 @@ public class LinkedList<E> implements List<E> {
 		/*************************************************************
 		 * data fields: current, ableToRemove
 		 *************************************************************/
-		public Node current; // tracks current position in the linked structure
-		public boolean ableToRemove; // checks if method next has been called before calling the remove method
+		private Node current; // tracks current position in the linked structure
+		private int index; // location of node in list
+		private boolean ableToRemove; // checks if method next has been called before calling the remove method
 		
 		/*************************************************************
 		 * constructor: LinkedIterator()
 		 *************************************************************/
 		public LinkedIterator() {
-			current = start.next;
+			index = 0;
+			current = start;
 			ableToRemove = false;
 		}
 		
@@ -328,7 +384,7 @@ public class LinkedList<E> implements List<E> {
 		 *************************************************************/
 		@Override
 		public boolean hasNext() {
-			return current.next != start;
+			return index < size() || current != start;
 		}
 
 		/*************************************************************
@@ -343,6 +399,7 @@ public class LinkedList<E> implements List<E> {
 			}
 			E result = current.data;
 			current = current.next;
+			index++;
 			ableToRemove = true;
 			return result;
 		}
@@ -358,7 +415,7 @@ public class LinkedList<E> implements List<E> {
 			Node prev = current.prev.prev;
 			prev.next = current;
 			current.prev = prev;
-			size--;
+			index--;
 			ableToRemove = false;
 		}
 	}
