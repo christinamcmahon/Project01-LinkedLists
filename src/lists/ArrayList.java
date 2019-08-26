@@ -40,7 +40,6 @@ public class ArrayList<E> implements List<E> {
 	 * copy constructor: ArrayList(List<E>)
 	 * @param other list being copied
 	 *************************************************************/
-	@SuppressWarnings("unchecked")
 	public ArrayList(List<E> other) {
 		this(other.size());
 	}
@@ -276,8 +275,10 @@ public class ArrayList<E> implements List<E> {
 		 *************************************************************/
 		public E next() {
 			if(!hasNext()) throw new NoSuchElementException("No next element");
+			E result = get(index);
 			index++;
-			return null; // replace!
+			ableToRemove = true;
+			return result; 
 		}
 		
 		/*************************************************************
